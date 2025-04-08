@@ -1,11 +1,17 @@
 import { GoogleGenAI } from "@google/genai";
 import colors from 'colors';
 import readlineSync from 'readline-sync';
-
+import fs from 'fs';
 import { configDotenv } from "dotenv";
 
 configDotenv();
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+const logFile = 'chatlog.txt';
+
+function logToFile(role, message) {
+  const logEntry = `[${new Date().toLocaleString()}] ${role}: ${message}\n`;
+  fs.appendFileSync(logFile, logEntry);
+}
 async function main() {
     //Starter 
     console.log(colors.bold.green('Welcome to the Chatbot!'))
@@ -42,6 +48,10 @@ async function main() {
             //update the chat history
             chatHistory.push(['user', userinput]);
             chatHistory.push(['model', response.text]);
+
+            //Adding the chat history to the log file
+            logToFile('User', userinput);
+            logToFile('Model',  response.text);
 
         } catch (error) {
            console.error(colors.red(error)) 
